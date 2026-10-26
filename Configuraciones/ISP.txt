@@ -1,0 +1,47 @@
+enable
+configure terminal
+
+hostname ISP
+
+no aaa new-model
+no ip domain lookup
+ip cef
+no ipv6 cef
+
+! Simula Internet: 8.8.8.8 es el destino de prueba del informe
+interface Loopback0
+ ip address 8.8.8.8 255.255.255.255
+
+! Enlace hacia R1-Core Ethernet0/2; ajustar el puerto si en tu topología es otro
+interface Ethernet0/0
+ description Enlace_hacia_R1-Core
+ ip address 203.0.113.1 255.255.255.252
+ no shutdown
+
+interface Ethernet0/1
+ no ip address
+ shutdown
+
+interface Ethernet0/2
+ no ip address
+ shutdown
+
+interface Ethernet0/3
+ no ip address
+ shutdown
+
+! Ruta de retorno hacia las redes internas del Equipo 4 (necesaria si no se usa NAT en el tráfico de vuelta)
+ip route 172.22.0.0 255.254.0.0 203.0.113.2
+
+no ip http server
+no ip http secure-server
+
+line con 0
+ logging synchronous
+
+line vty 0 4
+ login
+ transport input none
+
+end
+write memory

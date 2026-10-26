@@ -1,0 +1,348 @@
+enable
+configure terminal
+
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+
+hostname SWM1
+
+! paso manual: poner la clave enable real (el hash original se quitó por seguridad)
+enable secret CAMBIAR-CLAVE-ENABLE
+
+! paso manual: poner la clave real del usuario admin
+username admin privilege 15 secret CAMBIAR-CLAVE-ADMIN
+no aaa new-model
+
+no ip domain-lookup
+ip domain-name itla.edu.do
+ip cef
+no ipv6 cef
+
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+spanning-tree vlan 10,30,999 priority 4096
+spanning-tree vlan 20,40 priority 8192
+
+vlan internal allocation policy ascending
+
+track 1 interface Ethernet0/0 line-protocol
+
+interface Loopback0
+ no shutdown
+ ip address 172.23.255.11 255.255.255.255
+ ip ospf 1 area 0
+
+interface Port-channel1
+ no shutdown
+ description Troncal_LACP_SWM1_SWM2
+ switchport trunk allowed vlan 10,20,30,40,999
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+ switchport nonegotiate
+
+interface Ethernet0/0
+ no shutdown
+ description Enlace_hacia_R1_Core
+ no switchport
+ ip address 172.22.10.166 255.255.255.252
+ ip ospf network point-to-point
+ ip ospf 1 area 0
+ duplex auto
+
+interface Ethernet0/1
+ no shutdown
+ description EtherChannel_LACP_hacia_SWM2
+ switchport trunk allowed vlan 10,20,30,40,999
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+ switchport nonegotiate
+ channel-group 1 mode active
+
+interface Ethernet0/2
+ no shutdown
+ description EtherChannel_LACP_hacia_SWM2
+ switchport trunk allowed vlan 10,20,30,40,999
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+ switchport nonegotiate
+ channel-group 1 mode active
+
+interface Ethernet0/3
+ no shutdown
+ description EtherChannel_LACP_hacia_SWM2
+ switchport trunk allowed vlan 10,20,30,40,999
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+ switchport nonegotiate
+ channel-group 1 mode active
+
+interface Ethernet1/0
+ no shutdown
+ description Troncal_hacia_SWAC1
+ switchport trunk allowed vlan 10,20,30,40,999
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree guard root
+
+interface Ethernet1/1
+ no shutdown
+ description Troncal_hacia_SWAC2
+ switchport trunk allowed vlan 10,20,30,40,999
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree guard root
+
+interface Ethernet1/2
+ no shutdown
+ description Troncal_hacia_SWAC3
+ switchport trunk allowed vlan 10,20,30,40,999
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree guard root
+
+interface Ethernet1/3
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet2/0
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet2/1
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet2/2
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet2/3
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet3/0
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet3/1
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet3/2
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet3/3
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet4/0
+ no shutdown
+
+interface Ethernet4/1
+ no shutdown
+
+interface Ethernet4/2
+ no shutdown
+
+interface Ethernet4/3
+ no shutdown
+
+interface Ethernet5/0
+ no shutdown
+
+interface Ethernet5/1
+ no shutdown
+
+interface Ethernet5/2
+ no shutdown
+
+interface Ethernet5/3
+ no shutdown
+
+interface Ethernet6/0
+ no shutdown
+
+interface Ethernet6/1
+ no shutdown
+
+interface Ethernet6/2
+ no shutdown
+
+interface Ethernet6/3
+ no shutdown
+
+interface Ethernet7/0
+ no shutdown
+
+interface Ethernet7/1
+ no shutdown
+
+interface Ethernet7/2
+ no shutdown
+
+interface Ethernet7/3
+ no shutdown
+
+interface Ethernet8/0
+ no shutdown
+
+interface Ethernet8/1
+ no shutdown
+
+interface Ethernet8/2
+ no shutdown
+
+interface Ethernet8/3
+ no shutdown
+
+interface Ethernet9/0
+ no shutdown
+
+interface Ethernet9/1
+ no shutdown
+
+interface Ethernet9/2
+ no shutdown
+
+interface Ethernet9/3
+ no shutdown
+
+interface Vlan10
+ no shutdown
+ description ESTUDIANTES
+ ip address 172.22.0.2 255.255.248.0
+ ip access-group ACL-EST-IN in
+ standby version 2
+ standby 10 ip 172.22.0.1
+ standby 10 timers 1 3
+ standby 10 priority 110
+ standby 10 preempt delay minimum 30
+ standby 10 track 1 decrement 20
+ ip ospf 1 area 0
+ ip ospf cost 10
+
+interface Vlan20
+ no shutdown
+ description DOCENTES
+ ip address 172.22.8.2 255.255.255.0
+ ip access-group ACL-DOC-IN in
+ standby version 2
+ standby 20 ip 172.22.8.1
+ standby 20 timers 1 3
+ standby 20 preempt delay minimum 30
+ standby 20 track 1 decrement 20
+ ip ospf 1 area 0
+ ip ospf cost 20
+
+interface Vlan30
+ no shutdown
+ description GESTION
+ ip address 172.22.10.66 255.255.255.224
+ ip access-group ACL-GES-IN in
+ standby version 2
+ standby 30 ip 172.22.10.65
+ standby 30 timers 1 3
+ standby 30 priority 110
+ standby 30 preempt delay minimum 30
+ standby 30 track 1 decrement 20
+ ip ospf 1 area 0
+ ip ospf cost 10
+
+interface Vlan40
+ no shutdown
+ description VOZ
+ ip address 172.22.10.98 255.255.255.224
+ ip access-group ACL-VOZ-IN in
+ standby version 2
+ standby 40 ip 172.22.10.97
+ standby 40 timers 1 3
+ standby 40 preempt delay minimum 30
+ standby 40 track 1 decrement 20
+ ip ospf 1 area 0
+ ip ospf cost 20
+
+router ospf 1
+
+ip forward-protocol nd
+
+no ip http server
+no ip http secure-server
+
+ip ssh version 2
+! paso manual: generar las llaves RSA para que SSH funcione
+crypto key generate rsa modulus 2048
+
+ip access-list standard VTY-ADMIN
+ permit 172.22.10.0 0.0.0.63
+ permit 172.22.10.64 0.0.0.31
+ permit 172.22.10.176 0.0.0.7
+
+ip access-list extended ACL-DOC-IN
+ip access-list extended ACL-EST-IN
+ permit udp any host 224.0.0.102 eq 1985
+ permit icmp 172.22.0.0 0.0.7.255 172.22.10.64 0.0.0.31 echo-reply
+ permit tcp 172.22.0.0 0.0.7.255 172.22.10.64 0.0.0.31 established
+ deny   ip 172.22.0.0 0.0.7.255 172.22.8.0 0.0.0.255
+ deny   ip 172.22.0.0 0.0.7.255 172.22.9.0 0.0.0.127
+ deny   ip 172.22.0.0 0.0.7.255 172.22.9.128 0.0.0.127
+ deny   ip 172.22.0.0 0.0.7.255 172.22.10.64 0.0.0.31
+ deny   ip 172.22.0.0 0.0.7.255 172.22.10.96 0.0.0.31
+ deny   ip 172.22.0.0 0.0.7.255 172.22.10.128 0.0.0.31
+ deny   ip 172.22.0.0 0.0.7.255 172.22.10.160 0.0.0.15
+ deny   ip 172.22.0.0 0.0.7.255 172.22.10.176 0.0.0.7
+ deny   ip 172.22.0.0 0.0.7.255 172.23.255.0 0.0.0.255
+ permit tcp 172.22.0.0 0.0.7.255 172.22.10.0 0.0.0.63 eq www
+
+banner motd Acceso restringido - Equipo 4 - ITLA
+
+line con 0
+ logging synchronous
+ login
+line aux 0
+line vty 0 4
+ access-class VTY-ADMIN in
+ logging synchronous
+ login local
+ transport input ssh
+
+end
+write memory

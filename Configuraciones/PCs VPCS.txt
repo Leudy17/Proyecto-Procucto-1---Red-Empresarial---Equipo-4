@@ -1,0 +1,24 @@
+set pcname SERVER
+ip 172.22.10.10 172.22.10.1 26
+save
+
+set pcname GES1
+ip 172.22.10.80 172.22.10.65 27
+save
+
+set pcname EST1
+ip 172.22.0.10 172.22.0.1 21
+save
+
+set pcname DOC1
+ip 172.22.8.10 172.22.8.1 24
+save
+
+set pcname FIN1
+ip 172.22.9.140 172.22.9.129 25
+save
+
+set pcname ACA1
+ip 172.22.9.10 172.22.9.1 25
+ip auto
+save

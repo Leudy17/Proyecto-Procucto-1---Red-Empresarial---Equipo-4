@@ -1,0 +1,196 @@
+enable
+configure terminal
+
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+
+hostname SWAC1
+
+! paso manual: poner la clave enable real (el hash original se quitó por seguridad)
+enable secret CAMBIAR-CLAVE-ENABLE
+
+! paso manual: poner la clave real del usuario admin
+username admin privilege 15 secret CAMBIAR-CLAVE-ADMIN
+no aaa new-model
+
+no ip domain-lookup
+ip domain-name itla.edu.do
+ip cef
+no ipv6 cef
+
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+
+vlan internal allocation policy ascending
+
+interface Ethernet0/0
+ no shutdown
+ description Troncal_hacia_SWM1
+ switchport trunk allowed vlan 10,20,30,40,999
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+ switchport nonegotiate
+
+interface Ethernet0/1
+ no shutdown
+ description Troncal_hacia_SWM2
+ switchport trunk allowed vlan 10,20,30,40,999
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+ switchport nonegotiate
+
+interface Ethernet0/2
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet0/3
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet1/0
+ no shutdown
+ description DOC1_VLAN20
+ switchport access vlan 20
+ switchport mode access
+ switchport nonegotiate
+ switchport port-security maximum 2
+ switchport port-security violation restrict
+ switchport port-security mac-address sticky
+ switchport port-security mac-address sticky 0050.7966.6873
+ switchport port-security mac-address sticky 0295.d62d.fcfe
+ switchport port-security
+ spanning-tree portfast edge
+ spanning-tree bpduguard enable
+
+interface Ethernet1/1
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet1/2
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet1/3
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet2/0
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet2/1
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet2/2
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet2/3
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet3/0
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet3/1
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet3/2
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet3/3
+ no shutdown
+ description PUERTO_SIN_USO_BLACKHULL
+ switchport access vlan 999
+ switchport mode access
+ shutdown
+
+interface Ethernet4/0
+ no shutdown
+
+interface Ethernet4/1
+ no shutdown
+
+interface Ethernet4/2
+ no shutdown
+
+interface Ethernet4/3
+ no shutdown
+
+interface Vlan30
+ no shutdown
+ description Gestion_SWAC1
+ ip address 172.22.10.71 255.255.255.224
+
+ip default-gateway 172.22.10.65
+ip forward-protocol nd
+
+no ip http server
+no ip http secure-server
+
+ip ssh version 2
+! paso manual: generar las llaves RSA para que SSH funcione
+crypto key generate rsa modulus 2048
+
+ip access-list standard VTY-ADMIN
+ permit 172.22.10.0 0.0.0.63
+ permit 172.22.10.64 0.0.0.31
+ permit 172.22.10.176 0.0.0.7
+
+banner motd Acceso restringido - Equipo 4 - ITLA
+
+line con 0
+ logging synchronous
+ login
+line aux 0
+line vty 0 4
+ access-class VTY-ADMIN in
+ logging synchronous
+ login local
+ transport input ssh
+
+end
+write memory

@@ -1,0 +1,66 @@
+! Las VLANs y el dominio VTP se guardan en vlan.dat y no aparecen en el running-config de los switches; por eso se documentan aquí
+! Reconstruido a partir del informe ejecutivo (VTP versión 2); verificar contra el laboratorio con show vtp status y show vlan brief
+
+! SWM1 (servidor VTP, dominio CORE-ITLA)
+enable
+configure terminal
+
+vtp version 2
+vtp domain CORE-ITLA
+! paso manual: poner la contraseña VTP real
+vtp password CAMBIAR-CLAVE-VTP
+vtp mode server
+
+vlan 10
+ name ESTUDIANTES
+
+vlan 20
+ name DOCENTES
+
+vlan 30
+ name GESTION
+
+vlan 40
+ name VOZ
+
+vlan 999
+ name BLACKHULL
+
+end
+write memory
+
+! SWM2, SWAC1, SWAC2 y SWAC3 (clientes VTP, dominio CORE-ITLA)
+configure terminal
+
+vtp version 2
+vtp domain CORE-ITLA
+! paso manual: poner la contraseña VTP real
+vtp password CAMBIAR-CLAVE-VTP
+vtp mode client
+
+end
+write memory
+
+! SWA13 (servidor VTP, dominio SUC-R2)
+configure terminal
+
+vtp version 2
+vtp domain SUC-R2
+! paso manual: poner la contraseña VTP real
+vtp password CAMBIAR-CLAVE-VTP
+vtp mode server
+
+vlan 50
+ name FINANZAS
+
+vlan 60
+ name ACADEMICOS
+
+vlan 80
+ name GESTION-R2
+
+vlan 999
+ name BLACKHULL
+
+end
+write memory
